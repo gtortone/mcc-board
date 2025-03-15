@@ -1,0 +1,156 @@
+{{- $image := or .image "debian12.img" -}}
+
+architecture: arm64
+
+actions:
+
+  - action: debootstrap
+    suite: "bookworm"
+    components:
+      - main
+    mirror: https://deb.debian.org/debian
+    variant: minbase
+
+  - action: apt
+    packages: 
+      - sudo
+      - openssh-server
+      - systemd-sysv
+
+  - action: run
+    chroot: true
+    command: echo zynqmp > /etc/hostname
+
+  - action: apt
+    packages:
+      - apt-utils
+      - dialog
+      - locales
+      - bash-completion
+
+  - action: apt
+    packages:
+      - systemd-timesyncd
+      - telnet
+      - screen
+      - minicom
+      - nload
+      - picocom
+      - curl
+      - haveged
+      - dhcpcd5
+      - fdisk
+      - udev 
+      - netbase 
+      - ifupdown 
+      - iputils-ping 
+      - wget 
+      - net-tools
+      - ntpdate
+      - nano
+      - less
+      - kmod 
+      - vim
+      - file
+      - iperf3
+      - systemd-resolved
+
+  - action: apt
+    packages:
+      - parted
+      - git
+      - ca-certificates
+
+  - action: apt
+    packages:
+      - man-db
+      - gcc 
+      - g++ 
+      - tcl
+      - python3
+      - python3-pip
+      - make 
+      - pkg-config 
+      - libusb-dev 
+      - cmake 
+      - zlib1g 
+      - zlib1g-dev 
+      - usbutils
+      - stm32flash
+      - i2c-tools
+      - nfs-common
+      - libi2c-dev
+      - libmodbus-dev
+      - libmodbus5
+      - mtd-utils
+
+  - action: apt
+    packages:
+      - python3-numpy
+      - python3-dev
+      - libfmt9
+      - libfmt-dev
+      - libboost-iostreams1.74.0
+      - libboost-iostreams1.74-dev
+      - libboost-date-time1.74.0
+      - libboost-date-time1.74-dev
+      - libboost-serialization1.74.0
+      - libboost-serialization1.74-dev
+
+  - action: overlay
+    source: overlays/boot
+    destination: /boot
+
+  - action: overlay
+    source: overlays/etc
+    destination: /etc
+
+  - action: run
+    chroot: true
+    script: scripts/untar-modules.sh
+
+  - action: overlay
+    source: overlays/sshd
+    destination: /etc/ssh
+
+  - action: overlay
+    source: overlays/bash/bashrc
+    destination: /root/.bashrc
+
+  - action: overlay
+    source: overlays/vim/vimrc
+    destination: /root/.vimrc
+
+  - action: overlay
+    source: overlays/network
+    destination: /etc/network/interfaces.d
+
+  - action: run
+    chroot: true
+    command: echo "en_US.UTF-8 UTF-8" > /etc/locale.gen; /usr/sbin/locale-gen; /usr/sbin/update-locale LANG=en_US.UTF-8
+
+  - action: run
+    chroot: true
+    command: echo 'root:$1$TzpfaNEc$tjqCamkIJFUytJokydS8w.' | /usr/sbin/chpasswd -e
+
+  - action: image-partition
+    imagename: {{ $image }}
+    imagesize: 3.0GB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: rootfs
+    partitions:
+      - name: rootfs
+        features: ["^orphan_file"]
+        fs: ext4
+        start: 0%
+        end: 100%
+
+  - action: filesystem-deploy
+    description: Deploying filesystem onto image
+
+  - action: pack
+    compression: none
+    file: zynqmp-mcc-debian12.tar
+

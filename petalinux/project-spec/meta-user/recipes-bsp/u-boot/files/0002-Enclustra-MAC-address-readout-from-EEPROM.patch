@@ -1,0 +1,130 @@
+From a14dcb7be91a8047635bb56bc6748115e0b33da9 Mon Sep 17 00:00:00 2001
+From: Gennaro Tortone <gennaro.tortone@na.infn.it>
+Date: Fri, 14 Mar 2025 15:56:01 +0000
+Subject: [PATCH] Enclustra MAC address readout from EEPROM
+
+---
+ drivers/misc/Kconfig           |  8 +++++
+ drivers/misc/Makefile          |  1 +
+ drivers/misc/eeprom-mac.c      | 61 ++++++++++++++++++++++++++++++++++
+ include/enclustra/eeprom-mac.h | 12 +++++++
+ 4 files changed, 82 insertions(+)
+ create mode 100644 drivers/misc/eeprom-mac.c
+ create mode 100644 include/enclustra/eeprom-mac.h
+
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 7eb38c3e94..abcd07d788 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -83,6 +83,14 @@ config GATEWORKS_SC
+ 	  boards to provide a boot watchdog, power control, temperature monitor,
+ 	  voltage ADCs, and EEPROM.
+ 
++config ENCLUSTRA_EEPROM_MAC
++	bool "Configure Enclustra MAC address"
++	depends on MISC
++	select ATSHA204A
++	help
++	  Reads the MAC address out of the EEPROM and configures the MAC
++	  Addresses in the environment.
++
+ config ROCKCHIP_EFUSE
+         bool "Rockchip e-fuse support"
+ 	depends on MISC
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 562cef624a..b37bc09627 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -33,6 +33,7 @@ obj-$(CONFIG_ALTERA_SYSID) += altera_sysid.o
+ obj-$(CONFIG_ATSHA204A) += atsha204a-i2c.o
+ obj-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
+ obj-$(CONFIG_DS4510)  += ds4510.o
++obj-$(CONFIG_ENCLUSTRA_EEPROM_MAC) += eeprom-mac.o
+ obj-$(CONFIG_FSL_DEVICE_DISABLE) += fsl_devdis.o
+ obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
+ obj-$(CONFIG_FSL_IIM) += fsl_iim.o
+diff --git a/drivers/misc/eeprom-mac.c b/drivers/misc/eeprom-mac.c
+new file mode 100644
+index 0000000000..3aeb3e2fb7
+--- /dev/null
++++ b/drivers/misc/eeprom-mac.c
+@@ -0,0 +1,61 @@
++#include <common.h>
++#include <linux/compat.h>
++#include <dm.h>
++#include <i2c.h>
++#include <enclustra/eeprom-mac.h>
++#include <atsha204a-i2c.h>
++
++static struct udevice *get_atsha204a_dev(void)
++{
++	static struct udevice *dev;
++
++	if (uclass_get_device_by_name(UCLASS_MISC, "atsha204a@64", &dev)) {
++		printf("Cannot find ATSHA204A on I2C bus!\n");
++		dev = NULL;
++	}
++
++	return dev;
++}
++
++int atsha204_get_mac(u8 *buffer)
++{
++	int ret;
++	u8 data[4];
++	u8 i;
++	struct udevice *dev = get_atsha204a_dev();
++  
++	if (!dev) {
++		return -ENODEV; }
++
++#ifdef CONFIG_ATSHA204A
++	ret = atsha204a_wakeup(dev);
++
++	if (ret)
++	   return ret;
++
++	ret = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
++			     4, data);
++  
++	if (ret) {
++		return ret;
++	} else {
++		for (i = 0; i < 4; i++)
++			buffer[i] = data[i];
++	}
++
++	ret = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
++			     5, data);
++	if (ret) {
++		return ret;
++	} else {
++		buffer[4] = data[0];
++		buffer[5] = data[1];
++	} 
++
++	atsha204a_sleep(dev);
++#endif
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(atsha204_get_mac);
++
+diff --git a/include/enclustra/eeprom-mac.h b/include/enclustra/eeprom-mac.h
+new file mode 100644
+index 0000000000..3a16846bfa
+--- /dev/null
++++ b/include/enclustra/eeprom-mac.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * (C) Copyright 2021 Enclustra GmbH
++ * <info@enclustra.com>
++ */
++
++struct eeprom_mem {
++    int (*mac_reader)(u8 *buffer);
++};
++
++int atsha204_get_mac(u8 *buffer);
++
