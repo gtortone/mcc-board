@@ -30,6 +30,10 @@
    };
 };
 
+&sc_axi_gpio_poe {
+   status = "disabled";
+};
+
 &sfp_axi_ethernet_0 {
    status = "disabled";
 };
