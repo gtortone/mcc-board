@@ -83,9 +83,13 @@ actions:
       - libmodbus-dev
       - libmodbus5
       - mtd-utils
+      - gpiod
 
   - action: apt
     packages:
+      - python3-cmd2
+      - python3-libgpiod
+      - python3-smbus2
       - python3-numpy
       - python3-dev
       - libfmt9
