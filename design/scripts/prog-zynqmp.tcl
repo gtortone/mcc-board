@@ -23,7 +23,7 @@ con
 # load FSBL
 targets -set -filter {name =~ "Cortex-A53 #0"}
 rst -processor
-dow ~/devel/HyperK/PROD-MCC/petalinux/pl-mcc-v2/images/linux/zynqmp_fsbl.elf
+dow $pldir/zynqmp_fsbl.elf
 con
 after 2000
 stop
