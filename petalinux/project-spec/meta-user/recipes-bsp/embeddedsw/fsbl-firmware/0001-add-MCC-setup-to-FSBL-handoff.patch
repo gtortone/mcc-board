@@ -1,0 +1,30 @@
+From 4b9ace15cc13521e865ff0db6caf2f73397fbda2 Mon Sep 17 00:00:00 2001
+From: Gennaro Tortone <gennaro.tortone@na.infn.it>
+Date: Thu, 3 Apr 2025 14:24:11 +0000
+Subject: [PATCH] add MCC setup to FSBL handoff
+
+---
+ lib/sw_apps/zynqmp_fsbl/src/xfsbl_handoff.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_handoff.c b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_handoff.c
+index f000223357..5efcd0edba 100644
+--- a/lib/sw_apps/zynqmp_fsbl/src/xfsbl_handoff.c
++++ b/lib/sw_apps/zynqmp_fsbl/src/xfsbl_handoff.c
+@@ -51,6 +51,7 @@
+ #ifdef XPAR_XUARTPS_NUM_INSTANCES
+ #include "xuartps_hw.h"
+ #endif
++#include "mcc_config.h"
+ 
+ /************************** Constant Definitions *****************************/
+ #define XFSBL_CPU_POWER_UP		(0x1U)
+@@ -560,6 +561,8 @@ void XFsbl_HandoffExit(u64 HandoffAddress, u32 Flags)
+ 	RegVal |= XFSBL_EXEC_COMPLETED;
+ 	XFsbl_Out32(PMU_GLOBAL_GLOB_GEN_STORAGE5, RegVal);
+ 
++    mcc_config();
++
+ 	XFsbl_Printf(DEBUG_GENERAL,"Exit from FSBL \n\r");
+ 
+ #ifdef XPAR_XUARTPS_NUM_INSTANCES

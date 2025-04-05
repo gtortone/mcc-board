@@ -9,66 +9,139 @@
 	};
 
    chosen {
-		bootargs = "earlycon clk_ignore_unused cpuidle.off=1";
+		bootargs = "earlycon clk_ignore_unused cpuidle.off=1 net.ifnames=0";
 		stdout-path = "serial0:115200n8";
 	};
-
-   reserved-memory {
-      #address-cells = <2>;
-      #size-cells = <2>;
-      ranges;
-     
-      reserved: buffer@0 {
-          no-map;
-          reg = <0x0 0x70000000 0x0 0x10000000>;
-      };
-   };
-     
-   reserved-driver@0 {
-      compatible = "xlnx,reserved-memory";
-      memory-region = <&reserved>;
-   };
 };
 
+/*
 &sc_axi_gpio_poe {
-   status = "disabled";
+	status = "disabled";
 };
+*/
 
-&sfp_axi_ethernet_0 {
-   status = "disabled";
-};
+&rj45_axi_ethernet_0 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy0>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy0: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
 
-&rj45_axi_ethernet_0 {
-   status = "disabled";
-};
+&rj45_axi_ethernet_1 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy1>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy1: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
 
-&rj45_axi_ethernet_1 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_2 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_3 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_4 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_5 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_6 {
-   status = "disabled";
-};
-
-&rj45_axi_ethernet_7 {
-   status = "disabled";
-};
+&rj45_axi_ethernet_2 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy2>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy2: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
+&rj45_axi_ethernet_3 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy3>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy3: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
+&rj45_axi_ethernet_4 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy4>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy4: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
+&rj45_axi_ethernet_5 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy5>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy5: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
+&rj45_axi_ethernet_6 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy6>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy6: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
+&rj45_axi_ethernet_7 {  
+	/delete-property/ xlnx,phy-type;
+        //local-mac-address = [00 0a 35 00 01 22];  
+        phy-handle = <&extphy7>;  
+        xlnx,has-mdio = <0x1>;  
+        phy-mode = "rgmii-id";  
+        mdio {  
+            #address-cells = <1>;  
+            #size-cells = <0>;  
+            extphy7: phy@0 {  
+                device_type = "ethernet-phy";  
+                reg = <0>;  
+            };  
+        };  
+};  
 
 &gem0 {
 	status = "okay";
