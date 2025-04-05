@@ -84,6 +84,9 @@ actions:
       - libmodbus5
       - mtd-utils
       - gpiod
+      - bridge-utils
+      - ethtool
+      - sysstat
 
   - action: apt
     packages:
@@ -112,6 +115,10 @@ actions:
   - action: run
     chroot: true
     script: scripts/untar-modules.sh
+
+  - action: run
+    chroot: true
+    script: scripts/install-mccctl.sh
 
   - action: overlay
     source: overlays/sshd

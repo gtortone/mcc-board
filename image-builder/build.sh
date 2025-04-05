@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DEBIAN_RELEASE=12
-PL_PROJECT_BASE=~/devel/HyperK/PROD-MCC/petalinux/pl-mcc/images/linux
+PL_PROJECT_BASE=~/devel/HyperK/PROD-MCC/petalinux/pl-mcc-v2/images/linux
 TMPDIR=$PL_PROJECT_BASE/tmp
 
 echo "extract Linux kernel modules from PetaLinux rootfs..."
