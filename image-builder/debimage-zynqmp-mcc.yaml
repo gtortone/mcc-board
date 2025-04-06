@@ -136,6 +136,10 @@ actions:
     source: overlays/network
     destination: /etc/network/interfaces.d
 
+  - action: overlay
+    source: overlays/fixes
+    destination: /
+
   - action: run
     chroot: true
     command: echo "en_US.UTF-8 UTF-8" > /etc/locale.gen; /usr/sbin/locale-gen; /usr/sbin/update-locale LANG=en_US.UTF-8
