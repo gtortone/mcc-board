@@ -32,7 +32,19 @@
             extphy0: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
-            };  
+		/*
+	        * modify PHY registers to:
+	        * Reg 3_16
+	        * LED[1] bits [7:4] = ON=link, BLINK=activity, OFF=no activity
+	        * LED[0] bits [3:0] = link speed detect (3 blinks= 1Gbps, 2 blinks = 100Mbps, 1 blink = 10Mbps)
+	        * Reg 3_17
+	        * LED[1:0] = ON-drive low, OFF-high
+	        * Reg 3_18
+	        * LED[0] bits [3:2] = link speed LED blink off period = 170ms
+	        * LED[0] bits [1:0] = link speed LED blink on period = 340ms
+	        */
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
+	   };  
         };  
 };  
 
@@ -48,6 +60,7 @@
             extphy1: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
@@ -64,9 +77,11 @@
             extphy2: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
+
 &rj45_axi_ethernet_3 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
@@ -79,9 +94,11 @@
             extphy3: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
+
 &rj45_axi_ethernet_4 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
@@ -94,9 +111,11 @@
             extphy4: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
+
 &rj45_axi_ethernet_5 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
@@ -109,9 +128,11 @@
             extphy5: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
+
 &rj45_axi_ethernet_6 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
@@ -124,9 +145,11 @@
             extphy6: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
+
 &rj45_axi_ethernet_7 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
@@ -139,6 +162,7 @@
             extphy7: phy@0 {  
                 device_type = "ethernet-phy";  
                 reg = <0>;  
+	        marvell,reg-init = <3 16 0xff00 0x42>, <3 17 0xfff0 0x0>, <3 18 0xfff0 0x6>;
             };  
         };  
 };  
