@@ -14,12 +14,6 @@
 	};
 };
 
-/*
-&sc_axi_gpio_poe {
-	status = "disabled";
-};
-*/
-
 &rj45_axi_ethernet_0 {  
 	/delete-property/ xlnx,phy-type;
         //local-mac-address = [00 0a 35 00 01 22];  
