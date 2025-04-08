@@ -66,7 +66,7 @@ index 0000000000..3ab0a0dd84
 +
 +/* Default MAC address */
 +#define ENCLUSTRA_ETHADDR_DEFAULT "00:0A:35:01:02:03"
-+#define ENCLUSTRA_ETH1ADDR_DEFAULT "00:0A:35:01:02:04"
++#define ENCLUSTRA_ETH9ADDR_DEFAULT "00:0A:35:01:02:04"
 +
 +static struct eeprom_mem eeproms[] = {
 +	{ .mac_reader = atsha204_get_mac }
@@ -131,7 +131,7 @@ index 0000000000..3ab0a0dd84
 +				hwaddr[5]);
 +
 +			/* Set the actual env variable */
-+			env_set("eth1addr", hwaddr_str);
++			env_set("eth9addr", hwaddr_str);
 +
 +			hwaddr_set = true;
 +			break;
@@ -139,7 +139,7 @@ index 0000000000..3ab0a0dd84
 +
 +		if (!hwaddr_set) {
 +			env_set("ethaddr", ENCLUSTRA_ETHADDR_DEFAULT);
-+			env_set("eth1addr", ENCLUSTRA_ETH1ADDR_DEFAULT);
++			env_set("eth9addr", ENCLUSTRA_ETH9ADDR_DEFAULT);
 +		}
 +	}
 +	return 0;
