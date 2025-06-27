@@ -30,6 +30,7 @@ actions:
 
   - action: apt
     packages:
+      - supervisor
       - systemd-timesyncd
       - telnet
       - screen
@@ -85,8 +86,10 @@ actions:
       - mtd-utils
       - gpiod
       - bridge-utils
+      - ifenslave
       - ethtool
       - sysstat
+      - bmon
 
   - action: apt
     packages:
@@ -104,6 +107,14 @@ actions:
       - libboost-serialization1.74.0
       - libboost-serialization1.74-dev
 
+  - action: run
+    chroot: true
+    command: pip3 install gunicorn flask jsonschema Flask-JSON --break-system-packages
+
+  - action: run
+    chroot: true
+    command: systemctl enable supervisor
+
   - action: overlay
     source: overlays/boot
     destination: /boot
@@ -119,6 +130,10 @@ actions:
   - action: run
     chroot: true
     script: scripts/install-mccctl.sh
+
+  - action: run
+    chroot: true
+    script: scripts/install-mccws.sh
 
   - action: overlay
     source: overlays/sshd
@@ -139,6 +154,10 @@ actions:
   - action: overlay
     source: overlays/fixes
     destination: /
+
+  - action: overlay
+    source: overlays/brmac
+    destination: /usr/bin
 
   - action: run
     chroot: true
