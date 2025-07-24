@@ -1,21 +1,26 @@
-iface eth1 inet manual
-iface eth2 inet manual
-iface eth3 inet manual
-iface eth4 inet manual
-iface eth5 inet manual
-iface eth6 inet manual
-iface eth7 inet manual
-iface eth8 inet manual
-iface eth9 inet manual
+#
+# configuration disabled 
+# please use systemd-networkd: /etc/systemd/network
+# 
 
-auto br0 
-iface br0 inet dhcp
-   bridge_ports eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9
-   bridge_waitport 0       # no delay before a port becomes available
-   bridge_fd 0             # no forwarding delay
-   bridge_stp off          # disable Spanning Tree Protocol
-   post-up /usr/bin/set-brmac.sh
-
+#iface eth1 inet manual
+#iface eth2 inet manual
+#iface eth3 inet manual
+#iface eth4 inet manual
+#iface eth5 inet manual
+#iface eth6 inet manual
+#iface eth7 inet manual
+#iface eth8 inet manual
+#iface eth9 inet manual
+#
+#auto br0 
+#iface br0 inet dhcp
+#   bridge_ports eth1 eth2 eth3 eth4 eth5 eth6 eth7 eth8 eth9
+#   bridge_waitport 0       # no delay before a port becomes available
+#   bridge_fd 0             # no forwarding delay
+#   bridge_stp off          # disable Spanning Tree Protocol
+#   post-up /usr/bin/set-brmac.sh
+#
 # --- enable this section for bridge static IP address
 #auto br0
 #iface br0 inet static

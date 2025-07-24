@@ -1,0 +1,13 @@
+[Unit]
+Description=Set MAC address for bridge from /proc/cmdline
+Before=systemd-networkd.service
+Requires=systemd-networkd.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/set-brmac.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=systemd-networkd.service

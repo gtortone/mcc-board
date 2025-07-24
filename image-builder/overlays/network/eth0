@@ -1,3 +1,9 @@
+#
+# configuration disabled 
+# please use systemd-networkd: /etc/systemd/network
+# 
+
+#
 #auto eth0
 #iface eth0 inet dhcp
 #

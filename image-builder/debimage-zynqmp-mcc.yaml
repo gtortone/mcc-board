@@ -43,7 +43,6 @@ actions:
       - fdisk
       - udev 
       - netbase 
-      - ifupdown 
       - iputils-ping 
       - wget 
       - net-tools
@@ -115,6 +114,10 @@ actions:
     chroot: true
     command: systemctl enable supervisor
 
+  - action: run
+    chroot: true
+    command: systemctl enable systemd-networkd
+
   - action: overlay
     source: overlays/boot
     destination: /boot
@@ -150,6 +153,14 @@ actions:
   - action: overlay
     source: overlays/network
     destination: /etc/network/interfaces.d
+
+  - action: overlay
+    source: overlays/systemd-networkd
+    destination: /etc/systemd
+
+  - action: run
+    chroot: true
+    command: systemctl enable set-bridge-mac
 
   - action: overlay
     source: overlays/fixes

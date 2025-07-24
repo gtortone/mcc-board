@@ -1,0 +1,11 @@
+[Match]
+Name=br0
+
+[Network]
+DHCP=ipv4
+
+# static IP address
+#[Network]
+#Address=10.1.1.36/24
+#Gateway=10.1.1.254
+#DNS=10.1.1.254
