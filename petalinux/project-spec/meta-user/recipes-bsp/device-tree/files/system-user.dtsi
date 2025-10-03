@@ -258,3 +258,7 @@
 	};
 	i2c_user: i2c@ff030000 {};
 };
+
+&A4LITE_00 {
+   compatible = "generic-uio";
+};
