@@ -7,3 +7,6 @@ alias l='ls $LS_OPTIONS -lA'
 export TERM=linux
 
 alias mccctl='/opt/mcc-board-cli/mccctl.py'
+
+/usr/bin/fpgaver
+

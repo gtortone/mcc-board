@@ -143,8 +143,8 @@ actions:
     destination: /etc/ssh
 
   - action: overlay
-    source: overlays/bash/bashrc
-    destination: /root/.bashrc
+    source: overlays/bash/bash_profile
+    destination: /root/.bash_profile
 
   - action: overlay
     source: overlays/vim/vimrc
@@ -157,6 +157,10 @@ actions:
   - action: overlay
     source: overlays/systemd-networkd
     destination: /etc/systemd
+
+  - action: overlay
+    source: overlays/fpgaver
+    destination: /usr/bin
 
   - action: run
     chroot: true

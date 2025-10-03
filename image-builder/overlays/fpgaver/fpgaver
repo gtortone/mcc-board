@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+import sys
+import mmap
+
+# change here to set FPGA registers / parameters
+uiodev = "/dev/uio0"
+hash_addr = 0
+date_addr = 1
+time_addr = 2
+#
+
+regs = []
+
+def open_uio(uio):
+   global regs
+   try:
+      fid = open(uio, 'r+b', 0)
+   except FileNotFoundError:
+      # silent fails
+      sys.exit(-1)
+
+   regs = mmap.mmap(fid.fileno(), 0x10000)
+
+def read_register(add) -> int:
+   global regs
+   return int.from_bytes(regs[add*4:(add*4)+4], byteorder='little')
+
+open_uio(uiodev)
+hash_str = hex(read_register(hash_addr))[2:]
+date_value = hex(read_register(date_addr))[2:].zfill(8)
+date_str = ''.join((
+   date_value[0:2], 
+   '.',
+   date_value[2:4],
+   '.',
+   date_value[4:8]
+))
+time_value = hex(read_register(time_addr))[2:].zfill(8)
+time_str = ''.join((
+   time_value[0:2],
+   ':',
+   time_value[2:4],
+   ':',
+   time_value[4:6],
+   '.',
+   time_value[6:8],
+))
+
+print(f"\n# FPGA bitstream build: date: {date_str}, time: {time_str}, hash: {hash_str}\n")
