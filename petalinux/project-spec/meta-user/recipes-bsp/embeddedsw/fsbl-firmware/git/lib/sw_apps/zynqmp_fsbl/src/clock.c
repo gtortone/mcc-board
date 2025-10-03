@@ -257,6 +257,7 @@ XStatus Status;
             return XST_FAILURE;
         }
 
+        /*
         switch(clk_source_1) {
             case XTAL:
                 xil_printf("Clock 1: reference from XTAL\r\n");
@@ -282,6 +283,7 @@ XStatus Status;
 
             return XST_FAILURE;
         }
+        */
     }
 
     xil_printf("Clock : configured\r\n");

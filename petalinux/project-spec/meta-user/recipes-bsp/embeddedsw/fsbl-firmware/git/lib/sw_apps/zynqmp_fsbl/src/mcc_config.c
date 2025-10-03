@@ -79,7 +79,7 @@ void mcc_config(void) {
 
     if(Status == XST_FAILURE) {
     	xil_printf("\r\nClock configuration failed!!!\r\n");
-    	/* indicating clock configuration failure */
+    	// clock configuration failure
     	Gpio_Led_0_On();
     	while(1);
     }
