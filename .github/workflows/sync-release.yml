@@ -24,10 +24,6 @@ jobs:
           #!/bin/bash
           set -e
 
-          # ------------------------------
-          # CONFIGURAZIONE
-          # ------------------------------
-
           GITHUB_OWNER="gtortone"
           GITHUB_REPO="mcc-board"
           GITHUB_TOKEN="${SOURCE_TOKEN}"          # Dal secret GitHub
@@ -35,12 +31,12 @@ jobs:
           GITLAB_PROJECT_ID="172"
           GITLAB_TOKEN="${TARGET_TOKEN}"          # Dal secret GitHub
 
-          # ------------------------------
-          # OTTIENE L’ULTIMA RELEASE DA GITHUB
-          # ------------------------------
           echo "📥 Recupero l'ultima release da GitHub..."
 
           curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest > /tmp/RELEASE_JSON
+
+          echo "view RELEASE_JSON"
+          cat /tmp/RELEASE_JSON
 
           TAG_NAME=$(cat /tmp/RELEASE_JSON | jq -r '.tag_name')
           RELEASE_NAME=$(cat /tmp/RELEASE_JSON | jq -r '.name')
@@ -50,9 +46,6 @@ jobs:
 
           ASSETS=$(cat /tmp/RELEASE_JSON | jq -c '.assets[]?')
 
-          # ------------------------------
-          # CREA O AGGIORNA RELEASE SU GITLAB
-          # ------------------------------
           echo "📤 Creo o aggiorno la release su GitLab..."
 
           curl -s --request POST \
@@ -63,9 +56,6 @@ jobs:
             "https://git.hyperk.org/api/v4/projects/$GITLAB_PROJECT_ID/releases" \
             > /dev/null || true
 
-          # ------------------------------
-          # CARICA GLI ASSET
-          # ------------------------------
           for asset in $ASSETS; do
             URL=$(echo "$asset" | jq -r '.browser_download_url')
             FILENAME=$(echo "$asset" | jq -r '.name')
@@ -99,6 +89,6 @@ jobs:
 
       - name: Run sync script
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          SOURCE_TOKEN: ${{ secrets.SOURCE_TOKEN }}
+          TARGET_TOKEN: ${{ secrets.TARGET_TOKEN }}
         run: ./sync_release.sh
