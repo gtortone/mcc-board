@@ -40,17 +40,15 @@ jobs:
           # ------------------------------
           echo "📥 Recupero l'ultima release da GitHub..."
 
-          RELEASE_JSON=$(curl -s \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest)
+          curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_OWNER/$GITHUB_REPO/releases/latest > /tmp/RELEASE_JSON
 
-          TAG_NAME=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
-          RELEASE_NAME=$(echo "$RELEASE_JSON" | jq -r '.name')
-          RELEASE_BODY=$(echo "$RELEASE_JSON" | jq -r '.body')
+          TAG_NAME=$(cat /tmp/RELEASE_JSON | jq -r '.tag_name')
+          RELEASE_NAME=$(cat /tmp/$RELEASE_JSON | jq -r '.name')
+          RELEASE_BODY=$(cat /tmp/$RELEASE_JSON | jq -r '.body')
 
           echo "Trovata release: $TAG_NAME"
 
-          ASSETS=$(echo "$RELEASE_JSON" | jq -c '.assets[]?')
+          ASSETS=$(cat /tmp/$RELEASE_JSON | jq -c '.assets[]?')
 
           # ------------------------------
           # CREA O AGGIORNA RELEASE SU GITLAB
