@@ -1,4 +1,5 @@
 image-builder/overlays/boot/*
-image-builder/zynqmp-mcc-debian12.tar
-image-builder/zynqmp-mcc-debian12.img
+image-builder/*.tar
+image-builder/*.tar.gz
+image-builder/*.img
 attic/design/MCC
