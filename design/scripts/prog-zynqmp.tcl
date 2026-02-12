@@ -1,5 +1,5 @@
 #
-set pldir ~/devel/HyperK/PROD-MCC/petalinux/pl-mcc-v2/images/linux
+set pldir ~/devel/HyperK/PROD-MCC/petalinux/pl-mcc/images/linux
 #
 
 connect
