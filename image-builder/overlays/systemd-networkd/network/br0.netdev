@@ -2,3 +2,10 @@
 Name=br0
 Kind=bridge
 MACAddress=none
+
+[Bridge]
+STP=yes
+HelloTime=2
+ForwardDelay=4
+MaxAge=12
+Priority=32768

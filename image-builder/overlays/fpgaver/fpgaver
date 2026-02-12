@@ -5,9 +5,10 @@ import mmap
 
 # change here to set FPGA registers / parameters
 uiodev = "/dev/uio0"
-hash_addr = 0
-date_addr = 1
-time_addr = 2
+commit_hash_addr = 0
+commit_date_addr = 1
+build_time_addr = 2
+build_date_addr = 3
 #
 
 regs = []
@@ -27,24 +28,36 @@ def read_register(add) -> int:
    return int.from_bytes(regs[add*4:(add*4)+4], byteorder='little')
 
 open_uio(uiodev)
-hash_str = hex(read_register(hash_addr))[2:]
-date_value = hex(read_register(date_addr))[2:].zfill(8)
-date_str = ''.join((
-   date_value[0:2], 
+
+commit_hash_str = hex(read_register(commit_hash_addr))[2:]
+
+commit_date_value = hex(read_register(commit_date_addr))[2:].zfill(8)
+commit_date_str = ''.join((
+   commit_date_value[0:2], 
    '.',
-   date_value[2:4],
+   commit_date_value[2:4],
    '.',
-   date_value[4:8]
+   commit_date_value[4:8]
 ))
-time_value = hex(read_register(time_addr))[2:].zfill(8)
-time_str = ''.join((
-   time_value[0:2],
-   ':',
-   time_value[2:4],
-   ':',
-   time_value[4:6],
+ 
+build_date_value = hex(read_register(build_date_addr))[2:].zfill(8)
+build_date_str = ''.join((
+   build_date_value[6:8], 
    '.',
-   time_value[6:8],
+   build_date_value[4:6],
+   '.',
+   build_date_value[0:4]
 ))
 
-print(f"\n# FPGA bitstream build: date: {date_str}, time: {time_str}, hash: {hash_str}\n")
+build_time_value = hex(read_register(build_time_addr))[2:].zfill(8)
+build_time_str = ''.join((
+   build_time_value[0:2],
+   ':',
+   build_time_value[2:4],
+   ':',
+   build_time_value[4:6],
+   '.',
+   build_time_value[6:8],
+))
+
+print(f"\n# FPGA bitstream: build: {build_date_str}/{build_time_str}, commit: {commit_date_str}/{commit_hash_str}\n")

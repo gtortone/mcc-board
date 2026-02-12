@@ -1,6 +1,6 @@
 [Match]
-Name=eth[1-9]
+Name=eth[0-9]
 
 [Network]
 Bridge=br0
-
+DHCP=no
