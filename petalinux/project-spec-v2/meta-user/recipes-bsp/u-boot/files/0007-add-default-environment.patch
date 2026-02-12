@@ -14,7 +14,7 @@ new file mode 100644
 index 0000000000..eb024f7900
 --- /dev/null
 +++ b/default-uEnv.txt
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +sfp0_en=gpio@ff0a000049
 +sfp1_en=gpio@ff0a000048
 +sfp2_en=gpio@ff0a000047
@@ -27,7 +27,7 @@ index 0000000000..eb024f7900
 +autoload=no
 +nc=setenv stdout nc;setenv stdin nc
 +bootdelay=5
-+preboot=echo ETH0 MAC address: ${ethaddr}; echo SFP MAC address: ${eth10addr}; run download_uenv ; run init_gpio; run init_sfp
++preboot=echo ETH0 MAC address: ${ethaddr}; echo SFP MAC address: ${eth9addr}; run init_gpio; run init_sfp ; run download_uenv
 +ethprime=ethernet@a00c0000
 +bootargs=earlycon clk_ignore_unused cpuidle.off=1 uio_pdrv_genirq.of_id=generic-uio nr_cpus=2 net.ifnames=0
 +load_address=0x2000000
@@ -35,7 +35,7 @@ index 0000000000..eb024f7900
 +kernel_load_address=0x2080000
 +initrd_load_address=0x5000000
 +bootnet=dhcp && tftpboot ${kernel_load_address} /mcc/Image && tftpboot ${devicetree_load_address} /mcc/system.dtb && tftpboot ${initrd_load_address} /mcc/rootfs.cpio.gz && booti ${kernel_load_address} ${initrd_load_address} ${devicetree_load_address}
-+bootmmc=setenv bootargs ${bootargs} root=/dev/mmcblk0p1 rw rootwait braddr=${eth10addr} && load mmc 0 ${kernel_load_address} /boot/Image && load mmc 0 ${devicetree_load_address} /boot/system.dtb && setenv eth10addr 00:0a:35:00:00:0A && booti ${kernel_load_address} - ${devicetree_load_address}
++bootmmc=setenv bootargs ${bootargs} root=/dev/mmcblk0p1 rw rootwait braddr=${eth9addr} && load mmc 0 ${kernel_load_address} /boot/Image && load mmc 0 ${devicetree_load_address} /boot/system.dtb && setenv eth9addr 00:0a:35:00:00:0A && booti ${kernel_load_address} - ${devicetree_load_address}
 +bootmedia=mmc
 +bootcmd=run boot${bootmedia}
 +flash_bootbin=tftpboot 0x09000000 /mcc/BOOT.BIN && sf probe 0 0 0 && sf erase 0 0x4000000 && sf write 0x09000000 0 ${filesize}

@@ -1,7 +1,8 @@
 / {
 	aliases {
 		ethernet0 = &gem0;
-		ethernet1 = &gem3;
+      // GEM3 disabled due to issue with SFP0 link negotiation
+		//ethernet1 = &gem3;
 		i2c0 = &i2c_mgmt;
 		i2c1 = &i2c_user;
 		serial0 = &uart0;
@@ -186,6 +187,8 @@
 			rxd3-skew-ps = <420>;		
 		};
 
+      // GEM3 disabled due to issue with SFP0 link negotiation
+      /*
 		phy1: phy@7 {
 			reg = <7>;
 
@@ -205,13 +208,15 @@
 			rxd2-skew-ps = <420>;
 			rxd3-skew-ps = <420>;		
 		};
+      */
 	};
 };
 
+// GEM3 disabled due to issue with SFP0 link negotiation
 &gem3 {
-	status = "okay";
-	phy-handle = <&phy1>;
-	phy-mode = "rgmii-id";
+	status = "disabled";
+	//phy-handle = <&phy1>;
+	//phy-mode = "rgmii-id";
 };
 
 &qspi {
