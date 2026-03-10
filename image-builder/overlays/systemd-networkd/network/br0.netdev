@@ -7,5 +7,5 @@ MACAddress=none
 STP=yes
 HelloTime=2
 ForwardDelay=4
-MaxAge=12
-Priority=32768
+MaxAge=6
+Priority=4096

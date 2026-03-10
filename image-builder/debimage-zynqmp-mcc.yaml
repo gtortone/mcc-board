@@ -1,4 +1,5 @@
 {{- $image := or .image "debian12.img" -}}
+{{- $version := .version }}
 
 architecture: arm64
 
@@ -54,6 +55,7 @@ actions:
       - file
       - iperf3
       - systemd-resolved
+      - iptables
 
   - action: apt
     packages:
@@ -108,7 +110,7 @@ actions:
 
   - action: run
     chroot: true
-    command: pip3 install gunicorn flask jsonschema Flask-JSON --break-system-packages
+    command: pip3 install gunicorn flask jsonschema Flask-JSON tabulate psutil --break-system-packages
 
   - action: run
     chroot: true
@@ -117,6 +119,14 @@ actions:
   - action: run
     chroot: true
     command: systemctl enable systemd-networkd
+
+  - action: overlay
+    source: overlays/daemon/{{ $version }}
+    destination: /etc/supervisor/conf.d
+
+  - action: overlay
+    source: overlays/environment/{{ $version }}
+    destination: /etc
 
   - action: overlay
     source: overlays/boot
@@ -155,12 +165,12 @@ actions:
     destination: /etc/network/interfaces.d
 
   - action: overlay
-    source: overlays/systemd-networkd
-    destination: /etc/systemd
+    source: overlays/supervisord
+    destination: /lib/systemd/system
 
   - action: overlay
-    source: overlays/fpgaver
-    destination: /usr/bin
+    source: overlays/systemd-networkd
+    destination: /etc/systemd
 
   - action: run
     chroot: true
@@ -201,5 +211,5 @@ actions:
 
   - action: pack
     compression: none
-    file: zynqmp-mcc-debian12.tar
+    file: zynqmp-mcc{{ $version }}-debian12.tar
 

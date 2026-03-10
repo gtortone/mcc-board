@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DEBIAN_RELEASE=12
-PL_PROJECT_BASE=~/devel/HyperK/PROD-MCC/petalinux/pl-mcc-v2/images/linux
+PL_PROJECT_BASE=~/devel/HyperK/PROD-MCC/petalinux/pl-mcc-v1/images/linux
 TMPDIR=$PL_PROJECT_BASE/tmp
 
 echo "extract Linux kernel modules from PetaLinux rootfs..."
@@ -15,6 +15,6 @@ cp $PL_PROJECT_BASE/Image overlays/boot
 cp $PL_PROJECT_BASE/system.dtb overlays/boot
 
 echo "start Linux image build..."
-sudo debos -t image:zynqmp-mcc-debian$DEBIAN_RELEASE.img --cpus=8 --disable-fakemachine debimage-zynqmp-mcc.yaml
+sudo debos -t version:v1 -t image:zynqmp-mccv1-debian$DEBIAN_RELEASE.img --cpus=8 --disable-fakemachine debimage-zynqmp-mcc.yaml
 
 sudo losetup -D
