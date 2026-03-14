@@ -20,7 +20,7 @@ index 0000000000..eb024f7900
 +sfp2_en=gpio@ff0a000047
 +vin_alert=gpio@ff0a000050
 +12v_alert=gpio@ff0a000051
-+mode_address=0xa0110018
++mode_address=0xa0110014
 +init_gpio=gpio clear ${sfp0_en} ; gpio clear ${sfp1_en} ; gpio clear ${sfp2_en} ; gpio input ${vin_alert} ; gpio input ${12v_alert}
 +init_sfp=setexpr.b v *${mode_address}; if test $v -eq 0x00; then echo "SFP0: ethernet, SFP1: timing" ; gpio set ${sfp0_en} ; gpio set ${sfp1_en}; gpio clear ${sfp2_en} ; fi ; if test $v -eq 0x01; then echo "SFP1: timing, SFP2: ethernet" ; gpio clear ${sfp0_en} ; gpio set ${sfp1_en}; gpio set ${sfp2_en}; fi ; if test $v -eq 0x10; then echo "SFP0: ethernet, SFP2: timing" ; gpio set ${sfp0_en} ; gpio clear ${sfp1_en}; gpio set ${sfp2_en}; fi ;
 +download_uenv=dhcp ; tftpboot ${load_address} /mcc/uenv.txt

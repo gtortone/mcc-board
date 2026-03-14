@@ -93,17 +93,6 @@ void mcc_config(void) {
     	while(1);
     }
 
-#if 0
-    // ST
-
-    Status = ST_Initialize();
-
-    if(Status == XST_FAILURE) {
-    	xil_printf("\r\nSync & trigger Initialization failed!!!\r\n");
-    	while(1);
-    }
-#endif
-
     // end MCC code
 }
 
