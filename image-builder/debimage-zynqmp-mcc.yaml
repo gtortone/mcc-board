@@ -172,9 +172,17 @@ actions:
     source: overlays/systemd-networkd
     destination: /etc/systemd
 
+  - action: overlay
+    source: overlays/systemd-system
+    destination: /etc/systemd
+
   - action: run
     chroot: true
     command: systemctl enable set-bridge-mac
+
+  - action: run
+    chroot: true
+    command: systemctl enable rc-local.service
 
   - action: overlay
     source: overlays/fixes

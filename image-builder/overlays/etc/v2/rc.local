@@ -1,0 +1,5 @@
+#!/bin/bash
+
+/opt/mcc-board-cli/bin/pllconf.py -w /opt/mcc-board-cli/conf/HK-MCCV2-XT_48M-IN1_62_5M-ALL125M-NO-FASTLOCK-Registers.txt
+
+exit 0
