@@ -10,7 +10,7 @@
 
 void mcc_config(void) {
 
-   xil_printf("HK MCC\n\r");
+   xil_printf("HK MCC 2.0\n\r");
 
    u32 r = Xil_In32(RESET_REASON_REG);
 
@@ -20,13 +20,16 @@ void mcc_config(void) {
       xil_printf("Power-on reset\r\n");
 
       // GPIO
-      Gpio_Initialize();
+      if (Gpio_Initialize() != XST_SUCCESS)
+         xil_printf("E: GPIO initialization failure\r\n");
      
       // I2C
-      Iicps_Initialize();
+      if (Iicps_Initialize() != XST_SUCCESS)
+         xil_printf("E: I2C initialization failure\r\n");
 
       // POE
-      Poe_Initialize();
+      if (Poe_Initialize() != XST_SUCCESS)
+         xil_printf("E: POE initialization failure\r\n");
    }
 }
 
