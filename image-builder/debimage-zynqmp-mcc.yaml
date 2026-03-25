@@ -73,6 +73,10 @@ actions:
       - python3-pip
       - make 
       - pkg-config 
+      - libusb-1.0-0 
+      - libusb-1.0-0-dev
+      - libftdi1 
+      - libftdi1-dev
       - libusb-dev 
       - cmake 
       - zlib1g 
@@ -91,6 +95,9 @@ actions:
       - ethtool
       - sysstat
       - bmon
+      - xc3sprog
+      - openfpgaloader
+      - openocd
 
   - action: apt
     packages:
@@ -147,6 +154,10 @@ actions:
   - action: run
     chroot: true
     script: scripts/install-mccws.sh
+
+  - action: run
+    chroot: true
+    script: scripts/install-xvc-adaptive.sh
 
   - action: overlay
     source: overlays/sshd
