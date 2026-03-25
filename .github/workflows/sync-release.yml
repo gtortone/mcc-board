@@ -63,6 +63,11 @@ jobs:
             echo "📦 Scarico asset: $FILENAME"
             curl -L -o "$FILENAME" "$URL"
 
+            SIZE=$(stat -c%s "$FILENAME")
+            if (( SIZE > 100 * 1024 * 1024 )); then
+              continue
+            fi
+
             echo "⬆️ Carico asset su GitLab..."
             UPLOAD_RESPONSE=$(curl -s --request POST \
               --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
