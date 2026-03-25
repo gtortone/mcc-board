@@ -70,6 +70,7 @@ jobs:
               "https://git.hyperk.org/api/v4/projects/$GITLAB_PROJECT_ID/uploads")
 
             ASSET_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.full_path' 2>/dev/null)
+            echo $ASSET_URL
 
             if [ -n "$ASSET_URL" ]; then
 
