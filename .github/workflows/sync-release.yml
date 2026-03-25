@@ -69,15 +69,18 @@ jobs:
               --form "file=@$FILENAME" \
               "https://git.hyperk.org/api/v4/projects/$GITLAB_PROJECT_ID/uploads")
 
-            ASSET_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.full_path')
+            ASSET_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.full_path' 2>/dev/null)
 
-            echo "🔗 Allego asset alla release..."
-            curl -s --request POST \
-              --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-              --data "name=$FILENAME" \
-              --data "url=https://git.hyperk.org$ASSET_URL" \
-              "https://git.hyperk.org/api/v4/projects/$GITLAB_PROJECT_ID/releases/$TAG_NAME/assets/links" \
-              > /dev/null
+            if [ -n "$ASSET_URL" ]; then
+
+              echo "🔗 Allego asset alla release..."
+              curl -s --request POST \
+                --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+                --data "name=$FILENAME" \
+                --data "url=https://git.hyperk.org$ASSET_URL" \
+                "https://git.hyperk.org/api/v4/projects/$GITLAB_PROJECT_ID/releases/$TAG_NAME/assets/links" \
+                > /dev/null
+            fi
 
             rm "$FILENAME"
           done
