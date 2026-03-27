@@ -164,6 +164,10 @@ actions:
     destination: /etc/ssh
 
   - action: overlay
+    source: overlays/rc-local/{{ $version }}
+    destination: /etc
+
+  - action: overlay
     source: overlays/bash/bash_profile
     destination: /root/.bash_profile
 
