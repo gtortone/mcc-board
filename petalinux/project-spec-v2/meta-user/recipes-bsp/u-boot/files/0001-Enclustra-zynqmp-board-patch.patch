@@ -52,7 +52,7 @@ new file mode 100644
 index 0000000000..3ab0a0dd84
 --- /dev/null
 +++ b/board/xilinx/common/enclustra.c
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,94 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * (C) Copyright 2020 Enclustra GmbH
@@ -66,7 +66,7 @@ index 0000000000..3ab0a0dd84
 +
 +/* Default MAC address */
 +#define ENCLUSTRA_ETHADDR_DEFAULT "00:0A:35:01:02:00"
-+#define ENCLUSTRA_ETH9ADDR_DEFAULT "00:0A:35:01:02:0A"
++#define ENCLUSTRA_ETH8ADDR_DEFAULT "00:0A:35:01:02:0A"
 +
 +static struct eeprom_mem eeproms[] = {
 +	{ .mac_reader = atsha204_get_mac }
@@ -111,7 +111,8 @@ index 0000000000..3ab0a0dd84
 +				hwaddr[5]);
 +
 +			/* Set the actual env variable */
-+			env_set("ethaddr", hwaddr_str);
++        // eth0 disabled due to issues with SFP ports
++			//env_set("ethaddr", hwaddr_str);
 +
 +			/* increment MAC addr */
 +			hwaddr_h = (hwaddr[3] << 16) | (hwaddr[4] << 8) | hwaddr[5];
@@ -131,15 +132,15 @@ index 0000000000..3ab0a0dd84
 +				hwaddr[5]);
 +
 +			/* Set the actual env variable */
-+			env_set("eth9addr", hwaddr_str);
++			env_set("eth8addr", hwaddr_str);
 +
 +			hwaddr_set = true;
 +			break;
 +		}
 +
 +		if (!hwaddr_set) {
-+			env_set("ethaddr", ENCLUSTRA_ETHADDR_DEFAULT);
-+			env_set("eth9addr", ENCLUSTRA_ETH9ADDR_DEFAULT);
++			//env_set("ethaddr", ENCLUSTRA_ETHADDR_DEFAULT);
++			env_set("eth8addr", ENCLUSTRA_ETH8ADDR_DEFAULT);
 +		}
 +	}
 +	return 0;
