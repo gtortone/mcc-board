@@ -97,7 +97,6 @@ static void GetBoardId(void);
 ******************************************************************************/
 XStatus Gpio_Initialize(S_ID *ID)
 {
-   // test
    XStatus Status;
 
 #ifdef SDT
@@ -109,21 +108,22 @@ XStatus Gpio_Initialize(S_ID *ID)
    Status = XGpio_Initialize(&gpio_led, XPAR_SC_AXI_GPIO_LED_DEVICE_ID);
    if(Status != XST_SUCCESS) return XST_FAILURE;
 
+   // --> done in PL
    // turn off leds
-   XGpio_DiscreteWrite(&gpio_led, 1, 0x00);
+   //XGpio_DiscreteWrite(&gpio_led, 1, 0x00);
 
    Status = XGpio_Initialize(&gpio_poe, XPAR_SC_AXI_GPIO_POE_DEVICE_ID);
    if(Status != XST_SUCCESS) return XST_FAILURE;
 
+   // --> done in PL
    // deassert reset on POE IC
-   XGpio_DiscreteWrite(&gpio_poe, 1, 0x03);
+   //XGpio_DiscreteWrite(&gpio_poe, 1, 0x03);
 
    Status = XGpio_Initialize(&gpio_ds, XPAR_SC_AXI_GPIO_DS_DEVICE_ID);
    if(Status != XST_SUCCESS) return XST_FAILURE;
 
-   GetBoardId();
-
-   ID->BP_SADR = BoardCfg.Bit.Address;
+   //GetBoardId();
+   //ID->BP_SADR = BoardCfg.Bit.Address;
 
 	return XST_SUCCESS;
 }
