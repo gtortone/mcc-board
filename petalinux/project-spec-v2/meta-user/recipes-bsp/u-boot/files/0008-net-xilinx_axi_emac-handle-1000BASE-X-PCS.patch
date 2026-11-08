@@ -1,0 +1,282 @@
+From 384c692c050a45edc95eb374762d886ad0753e28 Mon Sep 17 00:00:00 2001
+From: Gennaro Tortone <gtortone@gmail.com>
+Date: Sat, 7 Nov 2026 13:15:29 +0100
+Subject: [PATCH v3] net: xilinx_axi_emac: handle 1000BASE-X PCS as the only
+ PHY
+
+When the interface is 1000BASE-X and no phy-handle is present (e.g. SFP
+cage), the generic PHY driver ends up bound to the internal PCS/PMA and
+waits for clause 37 autonegotiation at every network command. Since the
+AXI DMA reset also resets AXI Ethernet, the link is renegotiated each
+time and with some link partners (fiber media converters) the
+autonegotiation can deadlock until the fiber is physically disconnected.
+
+Handle the link directly on the PCS/PMA registers in this case:
+- do not touch BMCR when the link is already up in the wanted mode
+- try the mode that worked last time (autonegotiation at boot), on
+  timeout try the other one and remember the working mode
+- environment variable "pcs_aneg" ("on"/"off") forces the mode
+- the PCS/PMA reset caused by the DMA reset completes after
+  axi_dma_init() returns and restores the default BMCR: check BMCR at
+  every poll, rewrite it when needed and accept the link only after it
+  has been stable for PCS_STABLE_MS with the wanted mode in place
+
+Also initialize plat->phynode to ofnode_null(): a zeroed ofnode is the
+root node (valid) with a flat device tree. Guard setup_phy() against a
+missing phydev.
+
+Signed-off-by: Gennaro Tortone <gtortone@gmail.com>
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_015ukut53WppiBbMBR1iMaPL
+---
+ drivers/net/xilinx_axi_emac.c | 185 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 184 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/xilinx_axi_emac.c b/drivers/net/xilinx_axi_emac.c
+index ef151ee..893a0d7 100644
+--- a/drivers/net/xilinx_axi_emac.c
++++ b/drivers/net/xilinx_axi_emac.c
+@@ -8,10 +8,12 @@
+ 
+ #include <config.h>
+ #include <common.h>
++#include <console.h>
+ #include <cpu_func.h>
+ #include <display_options.h>
+ #include <dm.h>
+ #include <dm/device_compat.h>
++#include <env.h>
+ #include <log.h>
+ #include <net.h>
+ #include <malloc.h>
+@@ -58,6 +60,24 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define XAE_MDIO_DIV_DFT	29	/* Default MDIO clock divisor */
+ 
++/*
++ * 1000BASE-X PCS/PMA used as the only PHY (no phy-handle):
++ * link wait with autonegotiation disabled. With autonegotiation enabled
++ * PHY_ANEG_TIMEOUT is used.
++ */
++#define PCS_LINK_TIMEOUT_MS	1000
++
++/*
++ * The PCS/PMA reset triggered by the AXI DMA reset completes some time
++ * after axi_dma_init() returns and restores the default control register
++ * (autonegotiation enabled). The link is accepted only after the control
++ * register has held the wanted mode and the link has been up for this
++ * long without interruption.
++ */
++#define PCS_STABLE_MS		200
++
++#define PCS_POLL_MS		10
++
+ #define XAXIDMA_BD_STS_ACTUAL_LEN_MASK	0x007FFFFF /* Actual len */
+ 
+ /* DMA macros */
+@@ -129,6 +149,8 @@ struct axidma_priv {
+ 	u8 eth_hasnobuf;
+ 	ofnode phynode;
+ 	enum emac_variant mactype;
++	/* Last 1000BASE-X link came up with autonegotiation disabled */
++	bool pcs_an_off;
+ };
+ 
+ /* BD descriptors */
+@@ -381,15 +403,168 @@ failed_mdio:
+ 	return 1;
+ }
+ 
++/*
++ * True when the internal 1000BASE-X PCS/PMA is the only PHY of the link
++ * (e.g. SFP cage, no phy-handle in the device tree). In this case the
++ * generic PHY driver bound to the PCS is bypassed and the link is handled
++ * by pcs_1000basex_startup().
++ */
++static bool axiemac_pcs_is_phy(struct axidma_priv *priv)
++{
++	return priv->interface == PHY_INTERFACE_MODE_1000BASEX &&
++	       !ofnode_valid(priv->phynode);
++}
++
++/*
++ * Try to get the 1000BASE-X link up in one mode (autonegotiation enabled
++ * or disabled).
++ *
++ * The control register is checked at every poll and rewritten only when
++ * it does not hold the wanted mode: an already working link is not
++ * renegotiated, while a control register restored to its default by a
++ * late PCS/PMA reset is fixed again. The link is accepted only when it has
++ * been stable for PCS_STABLE_MS with the wanted mode in place.
++ *
++ * Returns 0 on link up, -ETIMEDOUT, -EINTR (ctrl-c) or -EIO (MDIO error).
++ */
++static int pcs_1000basex_try(struct axidma_priv *priv, bool an_off)
++{
++	int timeout_ms = (an_off ? PCS_LINK_TIMEOUT_MS : PHY_ANEG_TIMEOUT) +
++			 PCS_STABLE_MS;
++	u16 bmcr, bmsr, want;
++	int elapsed, stable_ms = 0, rewrites = 0;
++
++	want = BMCR_FULLDPLX | BMCR_SPEED1000;
++	if (!an_off)
++		want |= BMCR_ANENABLE;
++
++	for (elapsed = 0; ; elapsed += PCS_POLL_MS) {
++		if (phyread(priv, priv->pcsaddr, MII_BMCR, &bmcr) ||
++		    bmcr == 0xffff)
++			return -EIO;
++
++		if ((bmcr & (BMCR_ANENABLE | BMCR_ISOLATE | BMCR_PDOWN |
++			     BMCR_LOOPBACK)) != (want & BMCR_ANENABLE)) {
++			/* Mode change: restart autonegotiation when enabling it */
++			if (phywrite(priv, priv->pcsaddr, MII_BMCR,
++				     an_off ? want : want | BMCR_ANRESTART))
++				return -EIO;
++			/* Discard the latched link state of the previous mode */
++			if (phyread(priv, priv->pcsaddr, MII_BMSR, &bmsr))
++				return -EIO;
++			/*
++			 * The first write is the mode change, any further one
++			 * means the PCS/PMA reset restored the default value
++			 */
++			if (rewrites++)
++				debug("axiemac: PCS/PMA reset detected after %d ms, mode restored\n",
++				      elapsed);
++			stable_ms = 0;
++		} else {
++			if (phyread(priv, priv->pcsaddr, MII_BMSR, &bmsr))
++				return -EIO;
++			/* Link status is latched low: polling returns the current state */
++			if (bmsr != 0xffff && (bmsr & BMSR_LSTATUS) &&
++			    (an_off || (bmsr & BMSR_ANEGCOMPLETE))) {
++				stable_ms += PCS_POLL_MS;
++				if (stable_ms >= PCS_STABLE_MS)
++					return 0;
++			} else {
++				stable_ms = 0;
++			}
++		}
++
++		if (elapsed >= timeout_ms)
++			return -ETIMEDOUT;
++		if (ctrlc())
++			return -EINTR;
++		mdelay(PCS_POLL_MS);
++	}
++}
++
++/*
++ * Bring up a 1000BASE-X link on the internal PCS/PMA.
++ *
++ * Clause 37 autonegotiation with some link partners (e.g. fiber media
++ * converters) can deadlock after a PCS reset, which happens at every
++ * network command since the AXI DMA reset also resets AXI Ethernet.
++ * Strategy: try the mode that worked last time (autonegotiation first at
++ * boot), on timeout try the other one and remember the working mode.
++ *
++ * Environment variable "pcs_aneg" overrides the strategy:
++ *   "on"  - autonegotiation always enabled, no fallback
++ *   "off" - autonegotiation always disabled, no fallback
++ *   unset - automatic fallback (default)
++ */
++static int pcs_1000basex_startup(struct udevice *dev)
++{
++	struct axidma_priv *priv = dev_get_priv(dev);
++	struct phy_device *phydev = priv->phydev;
++	const char *mode = env_get("pcs_aneg");
++	bool an_off = priv->pcs_an_off;
++	bool fixed = false;
++	int ret;
++
++	if (mode && !strcmp(mode, "off")) {
++		an_off = true;
++		fixed = true;
++	} else if (mode && !strcmp(mode, "on")) {
++		an_off = false;
++		fixed = true;
++	}
++
++	ret = pcs_1000basex_try(priv, an_off);
++	if (ret == -ETIMEDOUT && !fixed) {
++		an_off = !an_off;
++		ret = pcs_1000basex_try(priv, an_off);
++		if (!ret)
++			printf("%s: 1000BASE-X link up with autonegotiation %s\n",
++			       dev->name, an_off ? "disabled" : "enabled");
++	}
++
++	if (ret) {
++		if (ret == -EIO)
++			printf("axiemac: MDIO to the PCS/PMA PHY has failed\n");
++		else if (ret == -EINTR)
++			puts("user interrupt!\n");
++		else
++			printf("%s: No link.\n", dev->name);
++		if (phydev)
++			phydev->link = 0;
++		return ret;
++	}
++
++	priv->pcs_an_off = an_off;
++	if (phydev) {
++		phydev->link = 1;
++		phydev->speed = SPEED_1000;
++		phydev->duplex = DUPLEX_FULL;
++	}
++
++	return 0;
++}
++
+ /* Setting axi emac and phy to proper setting */
+ static int setup_phy(struct udevice *dev)
+ {
+ 	u16 temp;
+ 	u32 speed, emmc_reg, ret;
++	int link_speed;
+ 	struct axidma_priv *priv = dev_get_priv(dev);
+ 	struct axi_regs *regs = priv->iobase;
+ 	struct phy_device *phydev = priv->phydev;
+ 
++	if (axiemac_pcs_is_phy(priv)) {
++		/* 1000BASE-X PCS/PMA without external PHY */
++		if (pcs_1000basex_startup(dev))
++			return 0;
++		link_speed = SPEED_1000;
++		goto set_speed;
++	}
++
++	if (!phydev)
++		return 0;
++
+ 	if (priv->interface == PHY_INTERFACE_MODE_SGMII) {
+ 		/*
+ 		 * In SGMII cases the isolate bit might set
+@@ -421,8 +596,10 @@ static int setup_phy(struct udevice *dev)
+ 		printf("%s: No link.\n", phydev->dev->name);
+ 		return 0;
+ 	}
++	link_speed = phydev->speed;
+ 
+-	switch (phydev->speed) {
++set_speed:
++	switch (link_speed) {
+ 	case 1000:
+ 		speed = XAE_EMMC_LINKSPD_1000;
+ 		break;
+@@ -917,6 +1094,12 @@ static int axi_emac_of_to_plat(struct udevice *dev)
+ 		plat->phyaddr = -1;
+ 		/* PHYAD 0 always redirects to the PCS/PMA PHY */
+ 		plat->pcsaddr = 0;
++		/*
++		 * A zeroed ofnode is valid (root node) with a flat device tree:
++		 * mark "no phy-handle" explicitly, axiemac_pcs_is_phy() relies
++		 * on it.
++		 */
++		plat->phynode = ofnode_null();
+ 
+ 		phynode = dev_get_phy_node(dev);
+ 		if (ofnode_valid(phynode)) {
+-- 
+2.43.0
+
