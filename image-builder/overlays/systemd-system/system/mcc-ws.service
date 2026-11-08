@@ -1,0 +1,17 @@
+[Unit]
+Description=MCC Web Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/mcc-ws
+EnvironmentFile=/etc/environment
+ExecStart=/usr/local/bin/gunicorn --chdir /opt/mcc-ws -w 4 -b 0.0.0.0 mcc-ws:app
+Restart=on-failure
+RestartSec=5
+After=stage-setup.service
+BindsTo=stage-setup.service
+
+[Install]
+WantedBy=multi-user.target

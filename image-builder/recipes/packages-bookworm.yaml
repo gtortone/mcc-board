@@ -1,0 +1,11 @@
+
+architecture: {{ .architecture }}
+
+actions:
+  - action: apt
+    packages:
+      - ntpdate
+
+  - action: run
+    chroot: true
+    command: pip3 install gpiod --break-system-packages

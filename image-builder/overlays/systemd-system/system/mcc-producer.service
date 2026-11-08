@@ -1,0 +1,16 @@
+[Unit]
+Description=MCC ToolDAQ producer
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/mcc-daq-interface
+ExecStart=/opt/mcc-daq-interface/build-arm64/producer --daq-config config/InterfaceConfig --mcc-config config/MCCConfig
+Restart=on-failure
+RestartSec=5
+After=stage-setup.service
+BindsTo=stage-setup.service
+
+[Install]
+WantedBy=multi-user.target

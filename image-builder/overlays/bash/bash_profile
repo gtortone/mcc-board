@@ -11,5 +11,8 @@ alias fpgaver='/opt/mcc-board-cli/bin/fpgaver.py'
 alias pllconf='/opt/mcc-board-cli/bin/pllconf.py'
 alias timereset='/opt/mcc-board-cli/bin/timereset.py'
 
+# stop here for non interactive sessions
+[[ $- == *i* ]] || return
+
 fpgaver
 

@@ -5,7 +5,7 @@ MACAddress=none
 
 [Bridge]
 STP=yes
-HelloTime=2
-ForwardDelay=4
-MaxAge=6
+HelloTimeSec=2
+ForwardDelaySec=4
+MaxAgeSec=6
 Priority=4096

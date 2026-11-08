@@ -2,4 +2,6 @@ image-builder/overlays/boot/*
 image-builder/*.tar
 image-builder/*.tar.gz
 image-builder/*.img
+image-builder/images/*
+image-builder/overlays/staging/*
 attic/design/MCC
