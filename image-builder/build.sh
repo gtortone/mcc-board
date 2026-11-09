@@ -64,7 +64,7 @@ sudo debos \
    -t outdir:${OUTDIR} \
    -t version:${VERSION} \
    -t suite:${SUITE} \
-   -t image:zynqmp-mcc-debian-${SUITE}.img \
+   -t image:zynqmp-mcc${MCC_VERSION}-debian-${SUITE}.img \
    -t mcc_version:${MCC_VERSION} \
    --cpus=8 \
    --disable-fakemachine debimage-zynqmp-mcc.yaml

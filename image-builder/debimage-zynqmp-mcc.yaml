@@ -164,14 +164,14 @@ actions:
 
   - action: pack
     compression: none
-    file: {{ $outdir }}/zynqmp-mcc-debian-{{ $suite }}.tar
+    file: {{ $outdir }}/zynqmp-mcc{{ $mcc_version }}-debian-{{ $suite }}.tar
 
   - action: pack
     compression: gz
-    file: {{ $outdir }}/zynqmp-mcc-debian-{{ $suite }}.tar.gz
+    file: {{ $outdir }}/zynqmp-mcc{{ $mcc_version }}-debian-{{ $suite }}.tar.gz
 
   - action: run
     chroot: false
     label: lz4
-    command: lz4 -f --favor-decSpeed {{ $outdir }}/zynqmp-mcc-debian-{{ $suite }}.tar {{ $outdir }}/zynqmp-mcc-debian-{{ $suite }}.tar.lz4
+    command: lz4 -f --favor-decSpeed {{ $outdir }}/zynqmp-mcc{{ $mcc_version }}-debian-{{ $suite }}.tar {{ $outdir }}/zynqmp-mcc{{ $mcc_version }}-debian-{{ $suite }}.tar.lz4
 
